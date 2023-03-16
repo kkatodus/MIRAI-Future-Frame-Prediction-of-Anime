@@ -1,5 +1,5 @@
 """
-This script converts the jpg images to numpy arrays and return it
+Utility functions for converting data from img and text to numpy arrays and text files
 """
 import os
 import numpy as np
