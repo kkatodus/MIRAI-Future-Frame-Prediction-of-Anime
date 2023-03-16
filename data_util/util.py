@@ -27,6 +27,7 @@ def get_one_cut(path):
     """
     folder = os.listdir(path)
     list_of_frames = []
+    text = ""
     # iterate through all files in the folder
     for file in folder:
         if file.endswith(".jpg"):
