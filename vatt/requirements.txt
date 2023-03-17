@@ -9,5 +9,6 @@ scipy
 six
 numpy
 PyYAML
-git+git://github.com/deepmind/dmvr.git
+#downloading dmvr fails with pip and there is no other way of installing it
+# git+git://github.com/deepmind/dmvr.git
 absl-py

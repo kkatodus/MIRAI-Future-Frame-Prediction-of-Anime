@@ -127,7 +127,8 @@ class ReluDenseBN(tf.keras.layers.Layer):
       bn_config = {"scale": True}
     if use_xreplica_bn:
       bn_config.update({"momentum": 0.9})
-
+    #without this the will be type error
+    # config = {key: value for key, value in bn_config.items() if key is not "__match_args__"}
     if self.pre_bn:
       self.pre_bn = bn_module(**bn_config)
 

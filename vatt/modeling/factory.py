@@ -144,7 +144,6 @@ def build_model(
     assert model_arch is not None, ('either params or model_arch should be '
                                     'specified')
     params = configs_factory.build_model_configs(model_arch)
-
   if override_params is not None:
     params.override(override_params)
 
@@ -154,7 +153,7 @@ def build_model(
   else:
     base_module = vatt_models.AudioTextVideoFusion
 
-  head_module = head_factory.build_model(params=params.head_config)
+  head_module = head_factory.build_model(params.head_config)
 
   model = MMRLModel(
       base_module=base_module,

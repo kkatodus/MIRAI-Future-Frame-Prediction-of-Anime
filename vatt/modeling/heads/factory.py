@@ -57,7 +57,6 @@ class HeadStack(tf.keras.layers.Layer):
     super(HeadStack, self).__init__(name="head_stack")
 
     self._bridge_heads = []
-
     for head_param in params.bridge:
       head_name = head_param.name.lower()
       module_kwargs = head_param.as_dict()
