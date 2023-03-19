@@ -1,0 +1,1 @@
+ python -m vatt.main --task=pretrain --mode=train --model_dir=PATH/TO/RUN --model_arch=tx_fac --strategy_type=mirrored --override_checkpoint='./checkpoint/vision_vatt_pretrain_tx_fac_bbs_ckpt-500000.data-00000-of-00001'
