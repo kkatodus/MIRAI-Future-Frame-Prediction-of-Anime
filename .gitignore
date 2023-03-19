@@ -2,3 +2,5 @@ __pycache__/
 /vatt/checkpoint/
 mirai_venv/
 lstm_auto/
+*.tgz
+misc/

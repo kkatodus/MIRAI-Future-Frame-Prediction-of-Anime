@@ -7,4 +7,6 @@
 ## Dataset
 
 * Look into ./vatt/data/datasets directory
-    * We need to populate this place to get the model up and running
+  * We need to populate this place to get the model up and running
+  * VATT website: <https://github.com/google-research/google-research/tree/master/vatt>
+  * DMVR website: <https://github.com/deepmind/dmvr/tree/master/examples>
