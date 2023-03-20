@@ -130,8 +130,7 @@ class BaseExecutor(base.Executor):
 
   def construct_data(self, params):
     if params.mode == 'train':
-      data = [dataloaders.PreTrainLoader(dataset_id=params.train.input.name,
-                                         params=params)]
+      data = [dataloaders.PreTrainLoader(dataset_id=params.train.input.name,params=params)]
     elif params.mode == 'eval':
       data = []
       for dataset_id in params.eval.input.name:
