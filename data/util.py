@@ -51,7 +51,7 @@ def save_to_file(path, list_of_frames):
     return array
 
 
-def check_frame_difference(first_frame, second_frame, threshold=0.85):
+def check_frame_difference(first_frame, second_frame, threshold=0.65):
     """ this function checks whether the difference between the two frames is greater than the threshold
     """
     """
@@ -71,12 +71,10 @@ def check_frame_difference(first_frame, second_frame, threshold=0.85):
     gray2 = cv2.cvtColor(second_frame, cv2.COLOR_BGR2GRAY)
     ssim = compare_ssim(gray1, gray2)
     # print("ssim", ssim)
-    if ssim < threshold:
-        print("ssim: ", ssim)
     return ssim < threshold
 
 
-def get_cut_timestamps(video_path, threshold=0.85):
+def get_cut_timestamps(video_path, threshold=0.65):
 
     # load video
     cap = cv2.VideoCapture(video_path)
@@ -110,7 +108,6 @@ def get_cut_timestamps(video_path, threshold=0.85):
             first_frame = frame
         else:
             print("Break from the while loop at cur_time: ", cur_time)
-            print("Ret: ", ret)
             break
 
     cap.release()
