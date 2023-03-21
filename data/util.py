@@ -51,7 +51,7 @@ def save_to_file(path, list_of_frames):
     return array
 
 
-def check_frame_difference(first_frame, second_frame, threshold=0.7):
+def check_frame_difference(first_frame, second_frame, threshold=0.85):
     """ this function checks whether the difference between the two frames is greater than the threshold
     """
     """
@@ -70,11 +70,13 @@ def check_frame_difference(first_frame, second_frame, threshold=0.7):
     gray1 = cv2.cvtColor(first_frame, cv2.COLOR_BGR2GRAY)
     gray2 = cv2.cvtColor(second_frame, cv2.COLOR_BGR2GRAY)
     ssim = compare_ssim(gray1, gray2)
+    # print("ssim", ssim)
+    if ssim < threshold:
+        print("ssim: ", ssim)
+    return ssim < threshold
 
-    return ssim > threshold
 
-
-def get_cut_timestamps(video_path, threshold=0.7):
+def get_cut_timestamps(video_path, threshold=0.85):
 
     # load video
     cap = cv2.VideoCapture(video_path)
@@ -91,18 +93,24 @@ def get_cut_timestamps(video_path, threshold=0.7):
 
     # initialize list of timestamps
     timestamps = []
-
+    n = 0
     # iterate through all frames
     while ret:
+        n += 1
         ret, frame = cap.read()
+        cur_time = cap.get(cv2.CAP_PROP_POS_MSEC)/1000
         if ret:
+            # print("frame number: ", n)
+            # print("cur_time: ", cur_time)
             if check_frame_difference(first_frame, frame, threshold) > 0:
                 # if the difference is greater than the threshold, add the timestamp to the list
                 cur_time = cap.get(cv2.CAP_PROP_POS_MSEC)/1000
                 timestamps.append(cur_time)
-                first_frame = frame
+
+            first_frame = frame
         else:
             print("Break from the while loop at cur_time: ", cur_time)
+            print("Ret: ", ret)
             break
 
     cap.release()
@@ -110,12 +118,15 @@ def get_cut_timestamps(video_path, threshold=0.7):
 
 
 if __name__ == "__main__":
+    threshold = 0.65
+    print("Threshold: ", threshold)
     path = "/Users/punyaphatsuk/Documents/ECE324Data/Out of Sight/videos/out_of_sight_1"
     list_of_frames, text = get_one_cut(path)
     print(len(list_of_frames))
     timestamps = get_cut_timestamps(
-        "/Users/punyaphatsuk/Documents/ECE324Data/Out of Sight/out_of_sight.mp4")
+        "/Users/punyaphatsuk/Documents/ECE324Data/Out of Sight/out_of_sight.mp4", threshold)
     print("timestamps: ", timestamps)
+    print("len(timestamps): ", len(timestamps))
     """
     array = save_to_file(
         "/Users/punyaphatsuk/Documents/GitHub/MIRAI-Future-Frame-Prediction-of-Anime/data/dataset/out_of_sight_1.npy", list_of_frames)
