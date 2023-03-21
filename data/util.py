@@ -41,9 +41,6 @@ def get_one_cut(path):
     return list_of_frames, text
 
 
-<< << << < HEAD: data/util.py
-
-
 def save_to_file(path, list_of_frames):
     """ This function saves the list_of_frames to a file as 4D numpy array
     """
@@ -73,5 +70,5 @@ if __name__ == "__main__":
     print(len(list_of_frames))
 
     array = save_to_file(
-        "/Users/punyaphatsuk/Documents/GitHub/MIRAI-Future-Frame-Prediction-of-Anime/data/dataset/test.npy", list_of_frames)
+        "/Users/punyaphatsuk/Documents/GitHub/MIRAI-Future-Frame-Prediction-of-Anime/data/dataset/out_of_sight_1.npy", list_of_frames)
     print(array.shape)
