@@ -6,6 +6,8 @@ import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
+import cv2
+from skimage.metrics import structural_similarity as compare_ssim
 
 
 def jpg_to_np(path):
@@ -49,26 +51,73 @@ def save_to_file(path, list_of_frames):
     return array
 
 
-def check_frame_difference(first_frame, second_frame, threshold=20):
+def check_frame_difference(first_frame, second_frame, threshold=0.7):
     """ this function checks whether the difference between the two frames is greater than the threshold
+    """
     """
     # compute the absolute difference between the two frames
     diff = cv2.absdiff(first_frame, second_frame)
+    # print("diff: ", diff)
 
     # convert the difference to grayscale
     gray = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
 
     # create a binary image
     _, thresh = cv2.threshold(gray, threshold, 255, cv2.THRESH_BINARY)
+    """
 
-    return np.sum(thresh > 0)
+    # this part uses SSIM to compare the two frames
+    gray1 = cv2.cvtColor(first_frame, cv2.COLOR_BGR2GRAY)
+    gray2 = cv2.cvtColor(second_frame, cv2.COLOR_BGR2GRAY)
+    ssim = compare_ssim(gray1, gray2)
+
+    return ssim > threshold
+
+
+def get_cut_timestamps(video_path, threshold=0.7):
+
+    # load video
+    cap = cv2.VideoCapture(video_path)
+
+    # check if it has loaded
+    if not cap.isOpened():
+        print("Error opening video stream or file")
+
+    # get fps
+    fps = cap.get(cv2.CAP_PROP_FPS)
+
+    # get first frame
+    ret, first_frame = cap.read()
+
+    # initialize list of timestamps
+    timestamps = []
+
+    # iterate through all frames
+    while ret:
+        ret, frame = cap.read()
+        if ret:
+            if check_frame_difference(first_frame, frame, threshold) > 0:
+                # if the difference is greater than the threshold, add the timestamp to the list
+                cur_time = cap.get(cv2.CAP_PROP_POS_MSEC)/1000
+                timestamps.append(cur_time)
+                first_frame = frame
+        else:
+            print("Break from the while loop at cur_time: ", cur_time)
+            break
+
+    cap.release()
+    return timestamps
 
 
 if __name__ == "__main__":
     path = "/Users/punyaphatsuk/Documents/ECE324Data/Out of Sight/videos/out_of_sight_1"
     list_of_frames, text = get_one_cut(path)
     print(len(list_of_frames))
-
+    timestamps = get_cut_timestamps(
+        "/Users/punyaphatsuk/Documents/ECE324Data/Out of Sight/out_of_sight.mp4")
+    print("timestamps: ", timestamps)
+    """
     array = save_to_file(
         "/Users/punyaphatsuk/Documents/GitHub/MIRAI-Future-Frame-Prediction-of-Anime/data/dataset/out_of_sight_1.npy", list_of_frames)
     print(array.shape)
+    """
