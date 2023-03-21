@@ -24,7 +24,7 @@ from vatt.data import processing
 class AnimeFactory(loading.BaseDMVRFactory, abc.ABC):
   """Base class for a toy factory."""
 
-  _BASE_DIR = 'PATH/TO/YOUR/TFRECORD'
+  _BASE_DIR = 'data/dataset/input-00000-of-00001'
   _NUM_CLASSES = 1000
 
   _TABLES = {
