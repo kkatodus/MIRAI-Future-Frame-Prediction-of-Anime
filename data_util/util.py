@@ -39,3 +39,39 @@ def get_one_cut(path):
             text = text.read()
 
     return list_of_frames, text
+
+
+<< << << < HEAD: data/util.py
+
+
+def save_to_file(path, list_of_frames):
+    """ This function saves the list_of_frames to a file as 4D numpy array
+    """
+    array = np.array(list_of_frames)
+    np.save(path, array)
+    return array
+
+
+def check_frame_difference(first_frame, second_frame, threshold=20):
+    """ this function checks whether the difference between the two frames is greater than the threshold
+    """
+    # compute the absolute difference between the two frames
+    diff = cv2.absdiff(first_frame, second_frame)
+
+    # convert the difference to grayscale
+    gray = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
+
+    # create a binary image
+    _, thresh = cv2.threshold(gray, threshold, 255, cv2.THRESH_BINARY)
+
+    return np.sum(thresh > 0)
+
+
+if __name__ == "__main__":
+    path = "/Users/punyaphatsuk/Documents/ECE324Data/Out of Sight/videos/out_of_sight_1"
+    list_of_frames, text = get_one_cut(path)
+    print(len(list_of_frames))
+
+    array = save_to_file(
+        "/Users/punyaphatsuk/Documents/GitHub/MIRAI-Future-Frame-Prediction-of-Anime/data/dataset/test.npy", list_of_frames)
+    print(array.shape)
