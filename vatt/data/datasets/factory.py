@@ -19,7 +19,7 @@ import functools
 from typing import Any, Dict, Optional, Text
 
 from vatt.data.datasets import toy_dataset
-
+from vatt.data.datasets import anime_dataset
 
 # DMVR-based factories
 DS_TO_FACTORY = {
@@ -27,6 +27,7 @@ DS_TO_FACTORY = {
     #### put your dataset factories here ####
     #########################################
     'TOY_DS': toy_dataset.ToyFactory,
+    'ANIME_DS': anime_dataset.AnimeFactory,
 }
 
 
