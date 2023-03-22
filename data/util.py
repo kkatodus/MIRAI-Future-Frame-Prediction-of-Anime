@@ -115,7 +115,7 @@ def get_cut_timestamps(video_path, threshold=0.65):
 
 
 if __name__ == "__main__":
-    threshold = 0.65
+    threshold = 0.67
     print("Threshold: ", threshold)
     path = "/Users/punyaphatsuk/Documents/ECE324Data/Out of Sight/videos/out_of_sight_1"
     list_of_frames, text = get_one_cut(path)
