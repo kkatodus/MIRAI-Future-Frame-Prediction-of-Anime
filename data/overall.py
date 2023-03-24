@@ -1,5 +1,6 @@
 import util
 
+
 if __name__ == "__main__":
     # Get timestamps
     # note: higher threshold means that the video will be split into more parts

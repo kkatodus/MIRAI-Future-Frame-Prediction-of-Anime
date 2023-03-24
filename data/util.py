@@ -36,14 +36,20 @@ def get_one_cut(path):
     list_of_frames = []
     text = ""
     # iterate through all files in the folder
+    frame_count = 0
     for file in folder:
         if file.endswith(".jpg"):
-            img = jpg_to_np(path + "/" + file)
-            list_of_frames.append(img)
+            frame_count += 1
+            #img = jpg_to_np(path + "/" + file)
+            # list_of_frames.append(img)
         elif file.endswith(".txt"):
             # found a text file
             text = open(path + "/" + file, "r")
             text = text.read()
+
+    for i in range(frame_count):
+        img = jpg_to_np(path + "/" + str(i) + ".jpg")
+        list_of_frames.append(img)
 
     return list_of_frames, text
 
@@ -135,7 +141,7 @@ def remove_consecutive_timestamps(timestamps):
         if i == 0:
             new_list.append(timestamps[i])
         else:
-            if timestamps[i] - timestamps[i-1] > 0.5:
+            if timestamps[i] - new_list[-1] >= 2:
                 new_list.append(timestamps[i])
     return new_list
 
@@ -144,14 +150,12 @@ def split_to_images(video_path, output_path, timestamps, quality=2, fps=10):
     # Define the start and end time in seconds
     input_file = video_path
     output_dir = output_path
-    start_time = 10
-    end_time = 20
 
     input_stream = ffmpeg.input(input_file)
 
     for i in range(len(timestamps)-1):
         start_time = timestamps[i]
-        end_time = timestamps[i+1]
+        end_time = timestamps[i] + 2
         output_dir = output_path
         if not os.path.exists(output_dir + str(i)):
             os.makedirs(output_dir + str(i))
@@ -165,28 +169,15 @@ def split_to_images(video_path, output_path, timestamps, quality=2, fps=10):
                          )
         ffmpeg.run(output_stream)
 
-    """
 
-    # Execute the FFmpeg command
-    ffmpeg.run(video)
+def reshape(data, num_frame, height, width):
+    """ This function reshapes the data to the correct shape
     """
-    """
-    output_options = [
-        '-q:v', str(quality),
-        '-r', str(fps),
-    ]
-
-    output_format = 'image2'
-    for i in range(len(timestamps)-1):
-        output_file = output_path + str(i) + '_%04d.jpg'
-        # get streams
-        input_stream = ffmpeg.input(
-            video_path, ss=timestamps[i], to=timestamps[i+1])
-        print("input_stream: ", type(input_stream))
-        output_stream = ffmpeg.output(input_stream, output_file, format=output_format, *output_options)
-        # run ffmpeg
-        ffmpeg.run(output_stream)
-        """
+    height_low = int((data[0].shape[0] - height)/2)
+    height_high = height_low + height
+    width_low = int((data[0].shape[1] - width)/2)
+    width_high = width_low + width
+    return np.array(data)[:num_frame, height_low:height_high, width_low:width_high, :]
 
 
 if __name__ == "__main__":
