@@ -1,37 +1,39 @@
 # %%
+from vatt.experiments import pretrain
+from data_proc.data_procviser import visualize_np_sequence_opencv, output_images_from_np_sequence
+import numpy as np
 import tensorflow as tf
 from vatt.configs import factory as config_factory
 gpus = tf.config.list_physical_devices('GPU')
 if gpus:
-  # Restrict TensorFlow to only use the first GPU
-  try:
-    tf.config.experimental.set_memory_growth(gpus[0], True)
-    tf.config.set_visible_devices(gpus[0], 'GPU')
-    logical_gpus = tf.config.list_logical_devices('GPU')
-    print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPU")
-  except RuntimeError as e:
-    # Visible devices must be set before GPUs have been initialized
-    print(e)
+    # Restrict TensorFlow to only use the first GPU
+    try:
+        tf.config.experimental.set_memory_growth(gpus[0], True)
+        tf.config.set_visible_devices(gpus[0], 'GPU')
+        logical_gpus = tf.config.list_logical_devices('GPU')
+        print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPU")
+    except RuntimeError as e:
+        # Visible devices must be set before GPUs have been initialized
+        print(e)
 
 
 # %%
-#loading data of numpy
-import numpy as np
-from data_proc.data_procviser import visualize_np_sequence_opencv, output_images_from_np_sequence
+# loading data of numpy
 
-video_data_np = np.load('./data/dataset/numpy/41.npy')
+video_data_np = np.load('./data/dataset/numpy/0.npy')
 video_shape = video_data_np.shape
+video_data_np = video_data_np[40]
 output_images_from_np_sequence(video_data_np)
-visualize_np_sequence_opencv(video_data_np, video_name = "video.mp4", fps = 10)
-video_data_np = video_data_np[:30,100:200,100:200,:]
-video_data_np = np.expand_dims(video_data_np, axis = 0)
-
+visualize_np_sequence_opencv(video_data_np, video_name="video.mp4", fps=10)
+video_data_np = video_data_np[:30, 100:200, 100:200, :]
+video_data_np = np.expand_dims(video_data_np, axis=0)
 
 
 # %%
-#need to create the configs of the model with config_factory
-#following the steps from ./vatt/main.py
-params = config_factory.build_experiment_configs(task = 'pretrain', model_arch = 'tx_fac')
+# need to create the configs of the model with config_factory
+# following the steps from ./vatt/main.py
+params = config_factory.build_experiment_configs(
+    task='pretrain', model_arch='tx_fac')
 params.eval.input.name = ['anime_ds']
 # params.eval.input.raw_audio = True
 params.eval.input.num_frames = 20
@@ -39,24 +41,24 @@ params.eval.input.frame_size = 64
 params.model_config.backbone_config.video_backbone = 'vit_base'
 
 params.override({
-    'checkpoint_path': "./vatt/checkpoint/vision_vatt_pretrain_tx_fac_bbs_ckpt-500000", 
-    'model_dir':'./results/',
-    'mode':'eval',
-    'strategy_config':{'distribution_strategy': 'mirrored'},
+    'checkpoint_path': "./vatt/checkpoint/vision_vatt_pretrain_tx_fac_bbs_ckpt-500000",
+    'model_dir': './results/',
+    'mode': 'eval',
+    'strategy_config': {'distribution_strategy': 'mirrored'},
 })
 
 
-#%%
-from vatt.experiments import pretrain
-#referencing ./vatt/main.py
-executor = pretrain.get_executor(params = params)
+# %%
+# referencing ./vatt/main.py
+executor = pretrain.get_executor(params=params)
 
 
 # %%
-#loading checkpoint
-#following the steps from ./vatt/experiments/base.py
+# loading checkpoint
+# following the steps from ./vatt/experiments/base.py
 
-checkpoint = tf.train.Checkpoint(model = executor.model, optimizer = executor.model.optimizer)
+checkpoint = tf.train.Checkpoint(
+    model=executor.model, optimizer=executor.model.optimizer)
 try:
     checkpoint.restore(params.checkpoint_path)
     print("Checkpoint restored successfully")
@@ -65,12 +67,12 @@ except:
 
 
 # %%
-#referencing how they do it in ./vatt/experiments/base.py line 253 - 
-#prepare_inputs() in ./vatt/pretrain.py
-#TODO: later add "audio" to the dict of input
+# referencing how they do it in ./vatt/experiments/base.py line 253 -
+# prepare_inputs() in ./vatt/pretrain.py
+# TODO: later add "audio" to the dict of input
 
-inputs, labels = executor.prepare_inputs({"vision":video_data_np})
-outputs = executor.model(inputs, training = False)
+inputs, labels = executor.prepare_inputs({"vision": video_data_np})
+outputs = executor.model(inputs, training=False)
 print("outputs")
 print(outputs.keys())
 encoded_video = outputs['video']['features_pooled']
@@ -82,4 +84,3 @@ print("encoded_text", encoded_text.shape)
 
 
 # %%
-

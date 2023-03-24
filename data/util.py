@@ -37,18 +37,20 @@ def get_one_cut(path):
     text = ""
     # iterate through all files in the folder
     frame_count = 0
+    file_name = []
     for file in folder:
         if file.endswith(".jpg"):
             frame_count += 1
+            file_name.append(file)
             #img = jpg_to_np(path + "/" + file)
             # list_of_frames.append(img)
         elif file.endswith(".txt"):
             # found a text file
             text = open(path + "/" + file, "r")
             text = text.read()
-
+    file_name.sort()
     for i in range(frame_count):
-        img = jpg_to_np(path + "/" + str(i) + ".jpg")
+        img = jpg_to_np(path + "/" + file_name[i])
         list_of_frames.append(img)
 
     return list_of_frames, text
