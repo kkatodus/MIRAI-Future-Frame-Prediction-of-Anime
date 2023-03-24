@@ -17,14 +17,15 @@ if gpus:
 # %%
 #loading data of numpy
 import numpy as np
+from data_proc.data_procviser import visualize_np_sequence_opencv, output_images_from_np_sequence
 
-video_data_np = np.load('./data/dataset/out_of_sight_1.npy')
+video_data_np = np.load('./data/dataset/numpy/41.npy')
 video_shape = video_data_np.shape
-print("video_shape_before", video_shape)
+output_images_from_np_sequence(video_data_np)
+visualize_np_sequence_opencv(video_data_np, video_name = "video.mp4", fps = 10)
 video_data_np = video_data_np[:30,100:200,100:200,:]
-print("video_shape_after", video_data_np.shape)
 video_data_np = np.expand_dims(video_data_np, axis = 0)
-print("video_shape_after_expand", video_data_np.shape)
+
 
 
 # %%
@@ -33,8 +34,8 @@ print("video_shape_after_expand", video_data_np.shape)
 params = config_factory.build_experiment_configs(task = 'pretrain', model_arch = 'tx_fac')
 params.eval.input.name = ['anime_ds']
 # params.eval.input.raw_audio = True
-params.eval.input.num_frames = 30
-params.eval.input.frame_size = 100
+params.eval.input.num_frames = 20
+params.eval.input.frame_size = 64
 params.model_config.backbone_config.video_backbone = 'vit_base'
 
 params.override({
@@ -80,6 +81,5 @@ print("encoded_audio", encoded_audio.shape)
 print("encoded_text", encoded_text.shape)
 
 
-
-
 # %%
+

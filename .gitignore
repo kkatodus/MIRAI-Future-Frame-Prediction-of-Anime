@@ -4,3 +4,6 @@ mirai_venv/
 lstm_auto/
 *.tgz
 misc/
+*.npy
+*.mp4
+output/*
