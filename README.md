@@ -8,3 +8,6 @@ This project involves using a machine learning model to predict the next anime f
 ## Architecture
 ![Architecture](https://cdn.discordapp.com/attachments/1068310123824550019/1089287912274808882/Arch20Diagram.png)
 The intended architecture uses VATT encoder that takes in multiple modes of input. We are passing in image and audio of the video to the encoder to get the code and the convLSTM decoder generates a prediction for the next few freames. 
+
+## Data Collection
+The functions for converting data is under the folder 'data'
