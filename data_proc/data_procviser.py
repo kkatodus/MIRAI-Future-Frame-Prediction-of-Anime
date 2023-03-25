@@ -2,7 +2,7 @@ import cv2
 import os 
 from PIL import Image
 
-def visualize_np_sequence_opencv(np_sequence, video_name="video.mp4", fps=30):
+def visualize_np_sequence_opencv(np_sequence, video_name="video.mp4", fps=30, dir="output"):
     """
     A function to visualize a numpy sequence of images by outputting a video corresponding to the sequence
 
@@ -16,9 +16,10 @@ def visualize_np_sequence_opencv(np_sequence, video_name="video.mp4", fps=30):
     print("Number of frames: ", number_of_frames)
     print("Shape of first image: ", first_image.shape)
     height, width, _ = first_image.shape
-
+    if not os.path.exists(dir):
+        os.makedirs(dir)
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    video = cv2.VideoWriter(video_name, fourcc, fps, (width, height))
+    video = cv2.VideoWriter(f"{dir}/{video_name}", fourcc, fps, (width, height))
     for i in range(np_sequence.shape[0]):
         video.write(np_sequence[i])
     video.release()
