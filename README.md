@@ -17,11 +17,17 @@ We have created the three scripts for the data collection pipeline:
 * `split_video.py` split the video into cuts with 20 frames images and save them
 * `generate_npy_from_jpeg.py` converts the jpeg files into a single npy file and also resize the image to the desired size
 
-## Data Visualization
-Data visualization involves two functions that convert the numpy arrays back into video cuts. The functions are inside the file `/data_proc/data_proc.py`
-
 General Data Collection Pipeline:
 ![Data Collection Pipeline](https://cdn.discordapp.com/attachments/1068310123824550019/1089300868714741841/data_processing.jpeg)
 
+## Data Visualization
+Data visualization involves two functions that convert the numpy arrays back into video cuts. The functions are inside the file `/data_proc/data_proc.py`
+
+
 ## VATT
 The code for running VATT encoder is under the folder `VATT`
+VATT model is configured to the configuration that runs with out input. The configuration is set in `main.py` inside the root folder. The dataloader that VATT required does not work with our dataset, hence needs to overwrite through the configurations.
+
+## LSTM Decoder
+A 2D convLSTM is defined in `main.py`
+The output from the VATT encoder is passed into the first hidden state of the decoder. Without training, the output was shown in the presentation and the report. The sample video is : [need a link]
