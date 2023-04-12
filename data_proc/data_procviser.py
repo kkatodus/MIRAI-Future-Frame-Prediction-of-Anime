@@ -11,7 +11,9 @@ def visualize_np_sequence_opencv(np_sequence, video_name="video.mp4", fps=30, di
     :param fps: the number of frames per second
     :return: None
     """
+    np_sequence = np_sequence.transpose(1, 2, 3, 0)
     first_image = np_sequence[0]
+    print("np_sequence.shape: ", np_sequence.shape)
     number_of_frames = np_sequence.shape[0]
     print("Number of frames: ", number_of_frames)
     print("Shape of first image: ", first_image.shape)
@@ -21,7 +23,8 @@ def visualize_np_sequence_opencv(np_sequence, video_name="video.mp4", fps=30, di
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     video = cv2.VideoWriter(f"{dir}/{video_name}", fourcc, fps, (width, height))
     for i in range(np_sequence.shape[0]):
-        video.write(np_sequence[i])
+        frame_bgr = cv2.cvtColor(np_sequence[i], cv2.COLOR_RGB2BGR)
+        video.write(frame_bgr)
     video.release()
     cv2.destroyAllWindows()
 
