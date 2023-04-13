@@ -145,6 +145,10 @@ def remove_consecutive_timestamps(timestamps):
         else:
             if timestamps[i] - new_list[-1] >= 2:
                 new_list.append(timestamps[i])
+            else:
+                # remove the last timestamp
+                new_list.remove(new_list[-1])
+                new_list.append(timestamps[i])
     return new_list
 
 

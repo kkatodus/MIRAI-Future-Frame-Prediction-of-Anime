@@ -2,9 +2,9 @@ import util
 import ast
 
 if __name__ == "__main__":
-    timestamp_path = "/Users/punyaphatsuk/MIRAI-Future-Frame-Prediction-of-Anime/data/dataset/SpiritedAway.txt"
-    video_path = "/Volumes/OneTouch/SpiritedAway/spirited_away480.mp4"
-    output_path = "/Volumes/OneTouch/SpiritedAway/"
+    timestamp_path = "/Users/punyaphatsuk/MIRAI-Future-Frame-Prediction-of-Anime/data/dataset/doraemon90.txt"
+    video_path = "/Volumes/OneTouch/Doraemon/doraemon.mp4"
+    output_path = "/Volumes/OneTouch/Doraemon/cuts90/"
     with open(timestamp_path, "r") as f:
         text = f.read()
     timestamps = ast.literal_eval(text)

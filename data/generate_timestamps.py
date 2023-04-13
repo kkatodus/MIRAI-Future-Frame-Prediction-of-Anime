@@ -5,9 +5,9 @@ if __name__ == "__main__":
     threshold = 0.8
     print("Start getting timestamps...")
     print("Threshold: ", threshold)
-    video_path = "/Volumes/OneTouch/SpiritedAway/spirited_away480.mp4"
+    video_path = "/Volumes/OneTouch/Doraemon/doraemon.mp4"
     print("Getting Timestamps for :", video_path)
-    res_text_path = "/Users/punyaphatsuk/MIRAI-Future-Frame-Prediction-of-Anime/data/dataset/SpiritedAway.txt"
+    res_text_path = "/Users/punyaphatsuk/MIRAI-Future-Frame-Prediction-of-Anime/data/dataset/doraemon90.txt"
     timestamps = util.get_cut_timestamps(
         video_path, threshold)
     print("timestamps: ", timestamps)
