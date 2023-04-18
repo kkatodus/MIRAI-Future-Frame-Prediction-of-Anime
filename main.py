@@ -1,4 +1,6 @@
 # %%
+from tensorflow import keras
+from tensorflow.keras import layers
 from vatt.experiments import pretrain
 from data_proc.data_procviser import visualize_np_sequence_opencv, output_images_from_np_sequence
 import numpy as np
@@ -16,8 +18,8 @@ if gpus:
         # Visible devices must be set before GPUs have been initialized
         print(e)
 
-#%%
-#setting up the parameters
+# %%
+# setting up the parameters
 FRAME_SIZE = 128
 NUM_FRAMES = int(20)
 NUM_TRAINING_FRAMES = int(20/2)
@@ -62,7 +64,8 @@ executor = pretrain.get_executor(params=params)
 # loading checkpoint
 # following the steps from ./vatt/experiments/base.py
 
-checkpoint = tf.train.Checkpoint(model = executor.model, optimizer = executor.model.optimizer)
+checkpoint = tf.train.Checkpoint(
+    model=executor.model, optimizer=executor.model.optimizer)
 
 try:
     checkpoint.restore(params.checkpoint_path)
@@ -72,12 +75,13 @@ except:
 
 
 # %%
-#referencing how they do it in ./vatt/experiments/base.py line 253 - 
-#prepare_inputs() in ./vatt/pretrain.py
-#TODO: later add "audio" to the dict of input
+# referencing how they do it in ./vatt/experiments/base.py line 253 -
+# prepare_inputs() in ./vatt/pretrain.py
+# TODO: later add "audio" to the dict of input
 BATCH_NUM = 20
-inputs, labels = executor.prepare_inputs({"vision":video_data_np[:BATCH_NUM, :NUM_TRAINING_FRAMES]})
-outputs = executor.model(inputs, training = False)
+inputs, labels = executor.prepare_inputs(
+    {"vision": video_data_np[:BATCH_NUM, :NUM_TRAINING_FRAMES]})
+outputs = executor.model(inputs, training=False)
 print("outputs")
 print(outputs.keys())
 encoded_video_p = outputs['video']['features_pooled']
@@ -95,28 +99,62 @@ print("encoded_text_p", encoded_text_p.shape)
 
 
 # %%
-#decoder for the encoded_video 
-#referencing training loop from https://www.tensorflow.org/guide/keras/writing_a_training_loop_from_scratch
-#https://keras.io/examples/vision/conv_lstm/
-from tensorflow.keras import layers
-from tensorflow import keras
+# decoder for the encoded_video
+# referencing training loop from https://www.tensorflow.org/guide/keras/writing_a_training_loop_from_scratch
+# https://keras.io/examples/vision/conv_lstm/
 VIDEO_ENCODING_SIZE = encoded_video.shape[1]
 AUDIO_ENCODING_SIZE = encoded_audio.shape[1]
 TEXT_ENCODING_SIZE = encoded_text.shape[1]
 
+
 class ConvLSTM2DDecoder():
     def __init__(self,):
-      super(ConvLSTM2DDecoder, self).__init__()
-      self.input = keras.Input(shape=(int(NUM_TRAINING_FRAMES), int(FRAME_SIZE), int(FRAME_SIZE), int(NUM_CHANNELS)), batch_size = BATCH_NUM)
-      self.conv_lstm = layers.ConvLSTM2D(6, kernel_size = (3,3), padding='same', return_sequences=True,stateful=True)
+        super(ConvLSTM2DDecoder, self).__init__()
+        self.input = keras.Input(shape=(int(NUM_TRAINING_FRAMES), int(
+            FRAME_SIZE), int(FRAME_SIZE), int(NUM_CHANNELS)), batch_size=BATCH_NUM)
+        self.conv_lstm = layers.ConvLSTM2D(6, kernel_size=(
+            3, 3), padding='same', return_sequences=True, stateful=True)
 
-      lstm_out = self.conv_lstm(self.input)
+        lstm_out = self.conv_lstm(self.input)
 
-      self.model = keras.Model(inputs=self.input, outputs=[lstm_out,])
+        self.model = keras.Model(inputs=self.input, outputs=[lstm_out, ])
 
-    def __call__(self,input, initial_state=None):
-       return self.model(input)
+    def __call__(self, input, initial_state=None):
+        return self.model(input)
 
+
+def train_conv_lstm_decoder(model, dataset, epochs, learning_rate, loss_function, optimizer_class):
+    # Define the optimizer
+    optimizer = optimizer_class(learning_rate=learning_rate)
+
+    @tf.function
+    def train_step(inputs, targets):
+        with tf.GradientTape() as tape:
+            # Get the model's predictions
+            predictions = model(inputs, training=True)
+
+            # Calculate the loss
+            loss = loss_function(targets, predictions)
+
+        # Compute gradients
+        gradients = tape.gradient(loss, model.trainable_variables)
+
+        # Apply gradients to update the model's weights
+        optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+
+        return loss
+
+    # Training loop
+    for epoch in range(epochs):
+        epoch_loss_avg = tf.keras.metrics.Mean()
+
+        for inputs, targets in dataset:
+            loss = train_step(inputs, targets)
+            epoch_loss_avg(loss)
+
+        print(f"Epoch {epoch+1}/{epochs}, Loss: {epoch_loss_avg.result()}")
+
+    return model
 
 
 decoder = ConvLSTM2DDecoder()
@@ -128,15 +166,18 @@ reshaped_encoding = tf.reshape(encoded_video, (BATCH_NUM, 128, 128, 6))
 model_input = video_data_np[:20, :NUM_TRAINING_FRAMES]
 print("model_input", model_input.shape)
 print("encoded_video", encoded_video.shape)
-decoder.conv_lstm.reset_states(states = (reshaped_encoding, reshaped_encoding))
+decoder.conv_lstm.reset_states(states=(reshaped_encoding, reshaped_encoding))
 model_output = decoder(model_input)
 print("model_output", model_output.shape)
-   
+
 # %%
 for i in range(model_output.shape[0]):
-  single_model_output = np.array(model_output[i, :, :, :, 1:4])
-  single_model_output = (single_model_output - np.min(single_model_output))*255/(np.max(single_model_output) - np.min(single_model_output))
-  single_model_output = single_model_output.astype(np.uint8)
-  visualize_np_sequence_opencv(video_data_np[i], video_name=f"{i}_original.mp4", fps=15, dir='./results/')
-  visualize_np_sequence_opencv(single_model_output, video_name=f"{i}_video.mp4", fps=15, dir='./results/')
+    single_model_output = np.array(model_output[i, :, :, :, 1:4])
+    single_model_output = (single_model_output - np.min(single_model_output)) * \
+        255/(np.max(single_model_output) - np.min(single_model_output))
+    single_model_output = single_model_output.astype(np.uint8)
+    visualize_np_sequence_opencv(
+        video_data_np[i], video_name=f"{i}_original.mp4", fps=15, dir='./results/')
+    visualize_np_sequence_opencv(
+        single_model_output, video_name=f"{i}_video.mp4", fps=15, dir='./results/')
 # %%
